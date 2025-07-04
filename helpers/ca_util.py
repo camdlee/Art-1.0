@@ -344,8 +344,19 @@ def extract_rfi_data(rfi_file) -> dict:
             extracted_data["Issue Date"] = issue_date
 
         # ---- Extract Question -------
-        question_pattern = r"at\s+\d{1,2}:\d{2}\s+[AP]M\s+\w+\s*\n(.+)"
-        question_match = re.search(question_pattern, text, re.IGNORECASE | re.DOTALL)
+        # if it ends with Awaiting an Official Response
+        question_pattern = (
+            r"at\s+\d{1,2}:\d{2}\s+[AP]M\s+\w+\s*\n"        # Match timestamp line
+            r"(.*?)"                                        # Non-greedy match of question text
+            r"(?=Awaiting an Official Response)"           # Stop before this phrase
+        )
+        #
+        alt_question_pattern = (
+            r"at\s+\d{1,2}:\d{2}\s+[AP]M\s+[A-Z]+\s*\n+"  # after time stamp (e.g., at 12:58 PM EST)
+            r"(.*?)"                                      # capture question
+            r"(?=Page\s+1\s+of)"                          # stop at Page 1 of
+        )
+        question_match = re.search(alt_question_pattern, text, re.IGNORECASE | re.DOTALL)
 
         if question_match:
             question_text = question_match.group(1).strip()
