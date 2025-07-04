@@ -18,23 +18,23 @@ helpers.sidebar.show()
 
 ## ------- HEADER -------
 st.header("Construction Administration - Data Extraction")
-st.write("")
+st.write("Work in Progress ⚙️")
 
 ## ------- Project Directory Selection --------
 # select the project folder
 
-proj_dir = st.text_input(label="Project Directory", key="project_directory", )
-
-# st.write(proj_dir)
-
-file_list = get_all_files_from_folder(proj_dir)
-st.write(file_list)
-
-project_rfi_list = extract_rfi_list_from_dir(proj_dir)
-#st.write(project_rfi_list)
-
-project_rfi_list_df = pd.DataFrame(project_rfi_list, columns=["Project", "Project Address", "General Contractor", "Architect Team", "Project Management Team", "GC Team", "MEP Consultants", "Consultants", "RFI Number", "RFI Name", "Issue Date", "Due Date", "Question"])
-st.dataframe(project_rfi_list_df)
+# proj_dir = st.text_input(label="Project Directory", key="project_directory", )
+#
+# # st.write(proj_dir)
+#
+# file_list = get_all_files_from_folder(proj_dir)
+# st.write(file_list)
+#
+# project_rfi_list = extract_rfi_list_from_dir(proj_dir)
+# #st.write(project_rfi_list)
+#
+# project_rfi_list_df = pd.DataFrame(project_rfi_list, columns=["Project", "Project Address", "General Contractor", "Architect Team", "Project Management Team", "GC Team", "MEP Consultants", "Consultants", "RFI Number", "RFI Name", "Issue Date", "Due Date", "Question"])
+# st.dataframe(project_rfi_list_df)
 #
 # uploaded_file = st.file_uploader("Upload file", type=['pdf'])
 # if uploaded_file is not None:
