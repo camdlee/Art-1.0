@@ -57,5 +57,5 @@ Ensure that you have the following dependencies/libraries installed:
 ## Running Application
 To run the application, use the following command:
 ```bash
-streamlit run Home.py
+streamlit run 🏠_Home.py
 ```
