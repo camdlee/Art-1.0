@@ -31,7 +31,4 @@ features_list = [
                  ]
 
 st.markdown("- " + "\n- ".join(features_list))
-# st.write(hashed)
-# print(hashed)
 
-#  $2b$12$dwVsMGU3s7cHLqtVg9G3/enK2G8p/13IFhQMYoian0iqFE.78NzSC
