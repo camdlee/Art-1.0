@@ -1,6 +1,11 @@
+import os
 import streamlit as st
 import streamlit_authenticator as stauth
 import helpers.sidebar
+from dotenv import load_dotenv
+
+load_dotenv()
+openai_model = os.getenv('OPENAI_API_MODEL')
 
 st.set_page_config(
     page_title="Home Page",
@@ -15,7 +20,7 @@ st.header("Home Page")
 st.write("This is a prototype application to support daily tasks in architecture and interior design.")
 
 st.write("The goal of this application is to leverage the power of large language models to automate or streamline daily tasks such as reviewing RFIs (Requests For Information) or project manuals. On the sidebar to the left, you'll see different areas where Art can support your design work.")
-st.write("The current LLM model this application uses OpenAI's API gpt-4-turbo-preview.")
+st.write(f"The current LLM model this application uses OpenAI's API {openai_model}.")
 
 st.divider()
 
