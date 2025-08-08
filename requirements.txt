@@ -1,4 +1,5 @@
 streamlit
+streamlit-authenticator
 openai
 toml~=0.10.2
 pandas
