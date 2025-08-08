@@ -2,7 +2,6 @@ import os
 import traceback
 from typing import List, Dict, AsyncGenerator
 
-import openai
 from openai import AsyncOpenAI
 
 from dotenv import load_dotenv
@@ -29,8 +28,8 @@ async def converse(messages: List[Dict[str, str]]) -> AsyncGenerator[str, None]:
 
     :return: a generator of delta string responses
     """
-    aclient = AsyncOpenAI(api_key=os.getenv('OPENAI_API_KEY'),
-                          base_url=os.getenv('OPENAI_API_BASE_URL'))
+    aclient = AsyncOpenAI(api_key=openai_api_key,
+                          base_url=base_url)
     try:
         async for chunk in await aclient.chat.completions.create(model=openai_model,
                                                                  messages=messages,
