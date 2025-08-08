@@ -15,6 +15,18 @@ class Blueprint:
                  agents: Optional[list[ConversableAgent]] = None,
                  config_list: Optional[list[dict]] = None,
                  llm_config: Optional[dict] = None):
+        """
+        Initialize a new Blueprint.
+
+        Args:
+            agents (Optional[list[ConversableAgent]]):
+                A list of conversational agents. The first agent in the list is
+                considered the initiator, and the second (if present) is the recipient.
+            config_list (Optional[list[dict]]):
+                A list of configuration dictionaries for agent setup.
+            llm_config (Optional[dict]):
+                Configuration for the language model(s) used by the agents.
+        """
         self._agents = agents or None
         self._config_list = config_list or None
         self._llm_config = llm_config or None
@@ -23,6 +35,19 @@ class Blueprint:
         self._recipient = agents[1] if agents and len(agents) > 1 else None
 
     async def initiate_work(self, message: str):
+        """
+        Start a conversation between the initiator and recipient agents.
+
+        This method sends the provided message from the initiator agent to the
+        recipient agent, initiating a chat session. If either agent is missing,
+        a `ValueError` is raised.
+
+        Args:
+            message (str): The initial message to send from the initiator to the recipient.
+
+        Raises:
+            ValueError: If no initiator or recipient agent is available.
+        """
         if self._initiator and self._recipient:
             self._initiator.initiate_chat(recipient=self._recipient, message=message)
         else:
