@@ -1,4 +1,5 @@
 autogen-agentchat~=0.2
+autogen
 requests
 streamlit
 streamlit-file-browser
