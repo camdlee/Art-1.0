@@ -14,8 +14,8 @@ openai_model = os.getenv('OPENAI_API_MODEL')
 openai_api_key = os.getenv('OPENAI_API_KEY')
 base_url = os.getenv('OPENAI_API_BASE_URL')
 
-print(
-    f"openai_model: {openai_model} openai.api_key: {os.getenv('OPENAI_API_KEY')} openai.api_base: {os.getenv('OPENAI_API_BASE_URL')}")
+# print(
+#     f"openai_model: {openai_model} openai.api_key: {os.getenv('OPENAI_API_KEY')} openai.api_base: {os.getenv('OPENAI_API_BASE_URL')}")
 
 
 async def converse(messages: List[Dict[str, str]]) -> AsyncGenerator[str, None]:
