@@ -1,7 +1,7 @@
 # Art-Assistant
 
 ## Overview
-**** Art is an AI powered Streamlit application design to assist architects/interior designs develop their coding skills. 
+Art is an AI powered Streamlit application design to assist architects/interior designs with construction administration tasks. 
 
 ## Installation
 1. Download or clone the repository
