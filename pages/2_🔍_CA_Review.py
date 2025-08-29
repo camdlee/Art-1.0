@@ -15,11 +15,12 @@ from aitools_autogen.utils import clear_working_dir
 from streamlit_file_browser import st_file_browser
 
 from helpers import util
-from helpers.ca_util import extract_data_from_submittal, extract_data_from_rfi, extract_text_from_uploaded_pdf, \
-    process_chunks_to_embeddings, display_page, load_embeddings, analyze_with_ai, convert_pdf_page_to_img, \
-    build_search_index, semantic_search, create_comparison_report
-from helpers.util import chunk_prompt, prepare_documents_from_embeddings, generate_prompt_embedding_array, \
-    convert_embeddings_dataframe, process_search_results, ask_book, display_evidence
+from helpers.pdf_utils import convert_pdf_page_to_img, convert_saved_pdf_page_to_img, display_pdf_page, extract_text_from_saved_pdf, extract_text_from_uploaded_pdf, process_pdf_upload
+from helpers.embeddings_util import create_comparison_report, semantic_search, analyze_with_ai, \
+    load_or_process_embeddings, build_search_index, generate_prompt_embedding_array, convert_embeddings_dataframe, \
+    ask_book, process_search_results, prepare_documents_from_embeddings, chunk_prompt, \
+    process_chunks_to_embeddings
+
 from services import prompts
 
 st.set_page_config(
@@ -31,42 +32,35 @@ st.set_page_config(
 helpers.sidebar.show()
 
 ## --------------------------------------------- SESSION STATES ------------------------------------------------
-# Ensure the session state is initialized
-if "proj_manual_messages" not in st.session_state:
+
+if "state_messages" not in st.session_state:
     initial_messages = [{"role": "system",
                          "content": prompts.quick_chat_system_prompt()}]
-    st.session_state.proj_manual_messages = initial_messages
+    st.session_state.pdf_messages = initial_messages
+if "all_relevant_context" not in st.session_state:
+    st.session_state.all_relevant_context = ""
+
+async def chat(messages, state_key = "state_messages"):
+    """Handles user/assistant conversation given a state_key"""
+    with st.chat_message("user"):
+        st.markdown(prompt)
+
+    with st.chat_message("assistant"):
+        messages_placeholder = st.empty()
+        messages = await util.run_conversation(messages, messages_placeholder)
+        st.session_state[state_key] = messages
+
+    return messages
+
+def render_messages(messages):
+    for msg in messages:
+        if msg["role"] != "system":
+            with st.chat_message(msg["role"]):
+                st.markdown(msg["content"])
 
 ## --------------------------------------------- HEADER ------------------------------------------------
 st.header("Construction Document Review")
 st.write("Uploaded your construction documents and leverage AI to review your documents")
-
-#     try:
-#         file_path = os.path.join("data", uploaded_files.name)
-#         os.makedirs("data", exist_ok=True)
-#         with open(file_path, "wb") as f:
-#             f.write(uploaded_files.read())
-#     except Exception as e:
-#         print(f"Unexpected error: {e}")
-#
-# with st.spinner("Loading file"):
-#     if os.path.exists("data/SampleProjectManual.pdf"):
-#         st.success("Project manual found")
-#         st.session_state.project_manual_path = "data/SampleProjectManual.pdf"
-#         proj_manual_embeddings_df = load_or_process_embeddings("data/SampleProjectManual.embeddings.csv")
-#         if proj_manual_embeddings_df is not None:
-#             proj_manual_chunks = prepare_documents_from_embeddings(proj_manual_embeddings_df)
-#         else:
-#             proj_manual_content = extract_text_from_pdf(st.session_state.project_manual_path)
-#             proj_manual_chunks = chunk_prompt(proj_manual_content)
-#             chunks_to_embeddings_csv(proj_manual_chunks)
-# st.session_state.project_manual = uploaded_files[0]
-# st.write(f"Uploaded file name: {st.session_state.project_manual.name}")
-# reader = PyPDF2.PdfReader(st.session_state.project_manual)
-# for page in reader.pages:
-#     print(page.extract_text())
-# st.text(page.extract_text())
-
 
 # ---------------------------------------- TABS --------------------------------------
 tabs = st.tabs(['Project Manual Review', 'Submittal Review', 'RFI Review'])
@@ -77,59 +71,28 @@ with tabs[0]:
     ## --------------------------------------------- FILE UPLOAD ------------------------------------------------
     uploaded_file = st.file_uploader("Please provide your project manual", type=['pdf'])
 
-    if uploaded_file is not None:
-        proj_manual_embeddings = None
-        proj_manual_content = extract_text_from_uploaded_pdf(uploaded_file)
-        # check if embeddings exist locally
-        if os.path.exists("data/SampleProjectManual.embeddings.csv"):
-            with st.spinner("Processing file"):
-                proj_manual_embeddings = load_embeddings("data/SampleProjectManual.embeddings.csv")
-                proj_manual_chunks = prepare_documents_from_embeddings(proj_manual_embeddings)
-                st.toast("Loaded project manual embeddings")
-                st.write(proj_manual_embeddings)
-        else:
-            # create embeddings and chunks for uploaded pdf
-            with st.spinner("Processing file"):
+    pdf_embeddings, pdf_chunks = process_pdf_upload(uploaded_file)
 
-                proj_manual_chunks = chunk_prompt(proj_manual_content)
-                proj_manual_embeddings = process_chunks_to_embeddings(proj_manual_chunks)
     if uploaded_file is not None:
         st.write("Ask any general question from your project manual")
 
         # Print all messages in the session state
-        for message in [m for m in st.session_state.proj_manual_messages if m["role"] != "system"]:
-            with st.chat_message(message["role"]):
-                st.markdown(message["content"])
-
-        ## --------------------------------------------- CHAT FEATURE ------------------------------------------------
-        # Chat with the LLM, and update the messages list with the response.
-        # Handles the chat UI and partial responses along the way.
-        async def chat(messages):
-            with st.chat_message("user"):
-                st.markdown(prompt)
-
-            with st.chat_message("assistant"):
-                message_placeholder = st.empty()
-                messages = await util.run_conversation(messages, message_placeholder)
-                st.session_state.proj_manual_messages = messages
-            return messages
+        render_messages(st.session_state.pdf_messages)
 
         all_relevant_context = ""
         # React to the user prompt
         if prompt := st.chat_input("Ask a question about the project manual..."):
-            if proj_manual_embeddings is not None:
+            if pdf_embeddings is not None:
                 # Generate prompt embedding
-
-                # prompt_embeddings = generate_prompt_embedding(prompt)
                 prompt_embedding_array = generate_prompt_embedding_array(prompt)
 
                 # Convert embeddings in embeddings_df for comparison
-                embeddings_matrix = convert_embeddings_dataframe(proj_manual_embeddings)
+                embeddings_matrix = convert_embeddings_dataframe(pdf_embeddings)
 
                 # Perform semantic search
-                indices, distances = ask_book(embeddings_matrix, prompt_embedding_array, proj_manual_embeddings)
+                indices, distances = ask_book(embeddings_matrix, prompt_embedding_array, pdf_embeddings)
 
-                all_relevant_context, relevant_page_numbers, most_relevant_context_index = process_search_results(all_relevant_context, indices, distances, proj_manual_chunks)
+                all_relevant_context, relevant_page_numbers, most_relevant_context_index = process_search_results(all_relevant_context, indices, distances, pdf_chunks)
 
                 print(f"Relevant context: {all_relevant_context}")
                 print(f"Most relevant context index: {most_relevant_context_index}")
@@ -155,15 +118,15 @@ with tabs[0]:
                         """
                     # Prepare the prompt for converse2
                     new_prompt = prompt_template.format(question = prompt, context= all_relevant_context)
-                    st.session_state.proj_manual_messages.append({"role": "user", "content": new_prompt})
+                    st.session_state.pdf_messages.append({"role": "user", "content": new_prompt})
 
-                    asyncio.run(chat(st.session_state.proj_manual_messages))
+                    asyncio.run(chat(st.session_state.pdf_messages))
 
-                display_evidence(st, first_relevant_page_num, most_relevant_context_index, proj_manual_chunks, "data/SampleProjectManual.pdf")
+                display_pdf_page(first_relevant_page_num, most_relevant_context_index, pdf_chunks, "data/SampleProjectManual.pdf")
 
             else:
-                st.session_state.proj_manual_messages.append({"role": "user", "content": prompt})
-                asyncio.run(chat(st.session_state.proj_manual_messages))
+                st.session_state.pdf_messages.append({"role": "user", "content": prompt})
+                asyncio.run(chat(st.session_state.pdf_messages))
 
 with tabs[1]:
     st.write("IN PROGRESS ⚒️")
@@ -174,7 +137,7 @@ with tabs[1]:
         # check if embeddings exist locally
         mineral_fiber_insulation_content = extract_text_from_uploaded_pdf(uploaded_submittal)
         if os.path.exists("data/Mineral_Fiber_SpecSheet_v3.embeddings.csv"):
-            mineral_fiber_insulation_embeddings = load_embeddings("data/Mineral_Fiber_SpecSheet_v3.embeddings.csv")
+            mineral_fiber_insulation_embeddings = load_or_process_embeddings("data/Mineral_Fiber_SpecSheet_v3.embeddings.csv")
             mineral_fiber_insulation_chunks = prepare_documents_from_embeddings(mineral_fiber_insulation_embeddings)
             st.write(mineral_fiber_insulation_embeddings)
         else:
@@ -183,20 +146,18 @@ with tabs[1]:
                 mineral_fiber_insulation_chunks = chunk_prompt(mineral_fiber_insulation_content)
                 mineral_fiber_insulation_embeddings = process_chunks_to_embeddings(mineral_fiber_insulation_chunks)
                 st.write(mineral_fiber_insulation_embeddings)
-    # print(type(proj_manual_embeddings))
-    # print(proj_manual_embeddings['embedding'].values.shape)
 
 
-    check_submittal_against_proj_manual = st.button("Check submittal against the project manual")
-    if check_submittal_against_proj_manual:
+    check_submittal_against_pdf = st.button("Check submittal against the project manual")
+    if check_submittal_against_pdf:
         # Step 4: Build the search index
-        nn_proj_manual = build_search_index(proj_manual_embeddings['embedding'].values.tolist())
+        nn_pdf = build_search_index(pdf_embeddings['embedding'].values.tolist())
 
         # Step 5: Perform semantic search
-        indices, distances = semantic_search(nn_proj_manual, mineral_fiber_insulation_embeddings['embedding'].values)
+        indices, distances = semantic_search(nn_pdf, mineral_fiber_insulation_embeddings['embedding'].values)
 
         # Step 6: Generate the comparison report
-        report = create_comparison_report(mineral_fiber_insulation_chunks, proj_manual_chunks, indices, distances)
+        report = create_comparison_report(mineral_fiber_insulation_chunks, pdf_chunks, indices, distances)
 
         for entry in report:
             print(f"Query: {entry['query_chunk']}")
@@ -239,7 +200,7 @@ with tabs[1]:
         #
         #     asyncio.run(chat(st.session_state.messages))
         #
-        # display_page(st, first_relevant_page_num, most_relevant_context_index, mineral_fiber_insulation_chunks, uploaded_submittal)
+        # display_pdf_page(first_relevant_page_num, most_relevant_context_index, mineral_fiber_insulation_chunks, uploaded_submittal)
 
 with tabs[2]:
     if "selected_agents" not in st.session_state:
