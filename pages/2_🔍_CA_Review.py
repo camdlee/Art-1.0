@@ -69,7 +69,7 @@ st.write("Uploaded your construction documents and leverage AI to review your do
 
 
 # ---------------------------------------- TABS --------------------------------------
-tabs = st.tabs(['Project Manual Review', 'RFI Review'])
+tabs = st.tabs(['Project Manual Review', 'Submittal Review', 'RFI Review'])
 
 ## --------------------------------------------- PROJECT MANUAL QUESTIONS ------------------------------------------------
 with tabs[0]:
@@ -165,83 +165,83 @@ with tabs[0]:
                 st.session_state.proj_manual_messages.append({"role": "user", "content": prompt})
                 asyncio.run(chat(st.session_state.proj_manual_messages))
 
-# with tabs[1]:
-#     st.write("IN PROGRESS ⚒️")
-#     st.write("Once you've provided you're project manual, upload your submittals to see if it complies with the project manual")
-#     uploaded_submittal = st.file_uploader("Upload your submittals", type=['pdf'])
-#
-#     if uploaded_submittal:
-#         # check if embeddings exist locally
-#         mineral_fiber_insulation_content = extract_text_from_uploaded_pdf(uploaded_submittal)
-#         if os.path.exists("data/Mineral_Fiber_SpecSheet_v3.embeddings.csv"):
-#             mineral_fiber_insulation_embeddings = load_embeddings("data/Mineral_Fiber_SpecSheet_v3.embeddings.csv")
-#             mineral_fiber_insulation_chunks = prepare_documents_from_embeddings(mineral_fiber_insulation_embeddings)
-#             st.write(mineral_fiber_insulation_embeddings)
-#         else:
-#             # create embeddings and chunks for uploaded pdf
-#             with st.spinner("Processing file"):
-#                 mineral_fiber_insulation_chunks = chunk_prompt(mineral_fiber_insulation_content)
-#                 mineral_fiber_insulation_embeddings = process_chunks_to_embeddings(mineral_fiber_insulation_chunks)
-#                 st.write(mineral_fiber_insulation_embeddings)
-#     # print(type(proj_manual_embeddings))
-#     # print(proj_manual_embeddings['embedding'].values.shape)
-#
-#
-#     check_submittal_against_proj_manual = st.button("Check submittal against the project manual")
-#     if check_submittal_against_proj_manual:
-#         # Step 4: Build the search index
-#         nn_proj_manual = build_search_index(proj_manual_embeddings['embedding'].values.tolist())
-#
-#         # Step 5: Perform semantic search
-#         indices, distances = semantic_search(nn_proj_manual, mineral_fiber_insulation_embeddings['embedding'].values)
-#
-#         # Step 6: Generate the comparison report
-#         report = create_comparison_report(mineral_fiber_insulation_chunks, proj_manual_chunks, indices, distances)
-#
-#         for entry in report:
-#             print(f"Query: {entry['query_chunk']}")
-#             print(f"Match: {entry['manual_chunk']}")
-#             print(f"Similarity Score: {entry['similarity_score']:.2f}")
-#             print(f"Status: {entry['status']}")
-#             print("-" * 50)
-#         # submittal_embedding_array = generate_prompt_embedding_array(mineral_fiber_insulation_content)
-#         # embeddings_matrix = convert_embeddings_dataframe(mineral_fiber_insulation_embeddings)
-#         # # Perform semantic search for the submittal content against the project manual embeddings
-#         # indices, distances = ask_book(embeddings_matrix, submittal_embedding_array, mineral_fiber_insulation_embeddings)
-#         #
-#         # all_relevant_context, relevant_page_numbers, most_relevant_context_index = process_search_results(all_relevant_context, indices, distances, mineral_fiber_insulation_chunks)
-#         #
-#         # print(f"Relevant context: {all_relevant_context}")
-#         # print(f"Most relevant context index: {most_relevant_context_index}")
-#         # print(f"Relevant page numbers: {relevant_page_numbers}")
-#         #
-#         # # remove duplicate page numbers where relevant info is located
-#         # relevant_page_numbers = list(set(relevant_page_numbers))
-#         # relevant_page_numbers.sort()
-#         #
-#         # first_relevant_page_num = relevant_page_numbers[0]
-#         #
-#         # if all_relevant_context:
-#         #     prompt_template = """
-#         #         Analyze if the submittal complies with the project manual based on the following context:
-#         #         %Submittal:
-#         #         ```
-#         #         {submittal}
-#         #         ```
-#         #         %Project Manual Context:
-#         #         ```
-#         #         {context}
-#         #         ```
-#         #         """
-#         #     # Prepare the prompt for the LLM
-#         #     new_prompt = prompt_template.format(submittal=mineral_fiber_insulation_content, context=proj_manual_content)
-#         #     st.session_state.messages.append({"role": "user", "content": new_prompt})
-#         #
-#         #     asyncio.run(chat(st.session_state.messages))
-#         #
-#         # display_page(st, first_relevant_page_num, most_relevant_context_index, mineral_fiber_insulation_chunks, uploaded_submittal)
-
 with tabs[1]:
+    st.write("IN PROGRESS ⚒️")
+    st.write("Once you've provided you're project manual, upload your submittals to see if it complies with the project manual")
+    uploaded_submittal = st.file_uploader("Upload your submittals", type=['pdf'])
+
+    if uploaded_submittal:
+        # check if embeddings exist locally
+        mineral_fiber_insulation_content = extract_text_from_uploaded_pdf(uploaded_submittal)
+        if os.path.exists("data/Mineral_Fiber_SpecSheet_v3.embeddings.csv"):
+            mineral_fiber_insulation_embeddings = load_embeddings("data/Mineral_Fiber_SpecSheet_v3.embeddings.csv")
+            mineral_fiber_insulation_chunks = prepare_documents_from_embeddings(mineral_fiber_insulation_embeddings)
+            st.write(mineral_fiber_insulation_embeddings)
+        else:
+            # create embeddings and chunks for uploaded pdf
+            with st.spinner("Processing file"):
+                mineral_fiber_insulation_chunks = chunk_prompt(mineral_fiber_insulation_content)
+                mineral_fiber_insulation_embeddings = process_chunks_to_embeddings(mineral_fiber_insulation_chunks)
+                st.write(mineral_fiber_insulation_embeddings)
+    # print(type(proj_manual_embeddings))
+    # print(proj_manual_embeddings['embedding'].values.shape)
+
+
+    check_submittal_against_proj_manual = st.button("Check submittal against the project manual")
+    if check_submittal_against_proj_manual:
+        # Step 4: Build the search index
+        nn_proj_manual = build_search_index(proj_manual_embeddings['embedding'].values.tolist())
+
+        # Step 5: Perform semantic search
+        indices, distances = semantic_search(nn_proj_manual, mineral_fiber_insulation_embeddings['embedding'].values)
+
+        # Step 6: Generate the comparison report
+        report = create_comparison_report(mineral_fiber_insulation_chunks, proj_manual_chunks, indices, distances)
+
+        for entry in report:
+            print(f"Query: {entry['query_chunk']}")
+            print(f"Match: {entry['manual_chunk']}")
+            print(f"Similarity Score: {entry['similarity_score']:.2f}")
+            print(f"Status: {entry['status']}")
+            print("-" * 50)
+        # submittal_embedding_array = generate_prompt_embedding_array(mineral_fiber_insulation_content)
+        # embeddings_matrix = convert_embeddings_dataframe(mineral_fiber_insulation_embeddings)
+        # # Perform semantic search for the submittal content against the project manual embeddings
+        # indices, distances = ask_book(embeddings_matrix, submittal_embedding_array, mineral_fiber_insulation_embeddings)
+        #
+        # all_relevant_context, relevant_page_numbers, most_relevant_context_index = process_search_results(all_relevant_context, indices, distances, mineral_fiber_insulation_chunks)
+        #
+        # print(f"Relevant context: {all_relevant_context}")
+        # print(f"Most relevant context index: {most_relevant_context_index}")
+        # print(f"Relevant page numbers: {relevant_page_numbers}")
+        #
+        # # remove duplicate page numbers where relevant info is located
+        # relevant_page_numbers = list(set(relevant_page_numbers))
+        # relevant_page_numbers.sort()
+        #
+        # first_relevant_page_num = relevant_page_numbers[0]
+        #
+        # if all_relevant_context:
+        #     prompt_template = """
+        #         Analyze if the submittal complies with the project manual based on the following context:
+        #         %Submittal:
+        #         ```
+        #         {submittal}
+        #         ```
+        #         %Project Manual Context:
+        #         ```
+        #         {context}
+        #         ```
+        #         """
+        #     # Prepare the prompt for the LLM
+        #     new_prompt = prompt_template.format(submittal=mineral_fiber_insulation_content, context=proj_manual_content)
+        #     st.session_state.messages.append({"role": "user", "content": new_prompt})
+        #
+        #     asyncio.run(chat(st.session_state.messages))
+        #
+        # display_page(st, first_relevant_page_num, most_relevant_context_index, mineral_fiber_insulation_chunks, uploaded_submittal)
+
+with tabs[2]:
     if "selected_agents" not in st.session_state:
         st.session_state.selected_agents = []
 
@@ -258,19 +258,6 @@ with tabs[1]:
             rfi_content = rfi_content.replace("\n", " ").replace("  ", " ").strip()
         st.write(rfi_content)
         st.session_state.rfi_question = rfi_content
-        # if os.path.exists("data/RFIExample.embeddings.csv"):
-        #     with st.spinner("Processing file"):
-        #         rfi_embeddings = load_embeddings("data/RFIExample.embeddings.csv")
-        #         rfi_chunks = prepare_documents_from_embeddings(rfi_embeddings)
-        #         st.toast("Loaded rfi embeddings")
-        #         st.write(rfi_embeddings)
-        # else:
-        #     # create embeddings and chunks for uploaded pdf
-        #     with st.spinner("Processing file"):
-        #         rfi_chunks = chunk_prompt(rfi_content)
-        #         rfi_embeddings = process_chunks_to_embeddings(rfi_chunks)
-        #         rfi_embeddings.to_csv("data/RFIExample.embeddings.csv")
-        #         st.write(rfi_embeddings)
 
     if st.session_state.get("rfi_review_blueprint", None) is None:
         st.session_state.rfi_review_blueprint = RFIReviewBlueprint()
