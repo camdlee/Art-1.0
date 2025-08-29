@@ -27,9 +27,9 @@ if uploaded_submittals is not None:
         data = extract_data_from_submittal(file)
         sub_data_list.append(data)
 
-    print(f'{sub_data_list}')
+    # print(f'{sub_data_list}')
 
-    sub_df = pd.DataFrame(sub_data_list, columns=['Submittal Number', 'Submittal Name', 'Date Received from GC', 'Date Sent to Engineers', 'Date Received from Engineers', 'Due Date',
+    sub_df = pd.DataFrame(sub_data_list, columns=['Submittal Number', 'Submittal Name', 'Date Received From GC', 'Date Sent to Engineers', 'Date Received from Engineers', 'Due Date',
                                                   'Date Returned', 'Response', 'Comments'])
     styled_sub_df = sub_df.style.set_table_styles(
         [
