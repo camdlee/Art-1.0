@@ -273,6 +273,29 @@ def semantic_search(nn_model, query_embeddings):
     distances, indices = nn_model.kneighbors(query_embeddings)
     return indices, distances
 
+def search_pdf_with_prompt(pdf_embeddings, pdf_chunks, prompt):
+    """Run semantic search and return relevant context."""
+    prompt_embedding_array = generate_prompt_embedding_array(prompt)
+    embeddings_matrix = convert_embeddings_dataframe(pdf_embeddings)
+    indices, distances = ask_book(embeddings_matrix, prompt_embedding_array, pdf_embeddings)
+    all_relevant_context, relevant_pages, most_relevant_index = process_search_results("", indices, distances, pdf_chunks)
+
+    first_page = sorted(set(relevant_pages))[0] if relevant_pages else None
+    ai_prompt = f"""
+    Answer the following question using the context:
+    %Question:
+    ```{prompt}```
+    %Context:
+    ```{all_relevant_context}```
+    """
+
+    return {
+        "all_context": all_relevant_context,
+        "first_page": first_page,
+        "most_relevant_index": most_relevant_index,
+        "ai_prompt": ai_prompt
+    }
+
 def create_comparison_report(query_chunks, manual_chunks, indices, distances, threshold=0.8):
     """
     Matches submittal chunks to project manual chunks and creates a comparison report.
