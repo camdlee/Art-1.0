@@ -2,7 +2,7 @@ import io
 import os
 from typing import Dict
 import re
-
+import streamlit as st
 from dotenv import load_dotenv
 from openai import OpenAI
 import pandas
@@ -49,3 +49,54 @@ async def run_conversation(messages: List[Dict[str, str]], message_placeholder: 
     message_placeholder.markdown(full_response)
     messages.append({"role": "assistant", "content": full_response})
     return messages
+
+async def run_conversation_with_context(messages, message_placeholder, context):
+    # Combine context with last user message
+    last_user_msg = messages[-1]["content"]
+    ai_prompt = f"""
+    Answer the following question using the context:
+    %Question:
+    ```{last_user_msg}```
+    %Context:
+    ```{context}```
+    """
+
+    # Temporarily append as "assistant" to capture output
+    full_response = ""
+    message_placeholder.markdown("Thinking...")
+    chunks = services.llm.converse([{"role": "user", "content": ai_prompt}])
+    chunk = await anext(chunks, "END OF CHAT")
+    while chunk != "END OF CHAT":
+        if chunk.startswith("EXCEPTION"):
+            full_response = ":red[We are having trouble generating advice. Please wait a minute and try again.]"
+            break
+        full_response += chunk
+        message_placeholder.markdown(full_response + "▌")
+        chunk = await anext(chunks, "END OF CHAT")
+
+    message_placeholder.markdown(full_response)
+    messages.append({"role": "assistant", "content": full_response})
+    return messages
+
+async def chat(messages, ai_prompt=None, state_key="pdf_messages"):
+    # Show user message (already in messages)
+    with st.chat_message("user"):
+        st.markdown(messages[-1]["content"])
+
+    # Show assistant message placeholder
+    with st.chat_message("assistant"):
+        placeholder = st.empty()
+        if ai_prompt:
+            # Run AI call internally without adding the huge prompt to chat
+            response_messages = await run_conversation_with_context(messages, placeholder, ai_prompt)
+            messages.extend(response_messages)
+        st.session_state[state_key] = messages
+
+    return messages
+
+def render_messages(messages):
+    """Render all messages in Streamlit chat UI."""
+    for msg in messages:
+        if msg["role"] != "system":
+            with st.chat_message(msg["role"]):
+                st.markdown(msg["content"])
