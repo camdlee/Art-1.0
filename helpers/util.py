@@ -16,11 +16,10 @@ from typing import List, Tuple
 from sklearn.neighbors import NearestNeighbors
 from pdf2image import convert_from_path
 
-# Load .env file
-load_dotenv()
-openai_model = os.getenv('OPENAI_API_MODEL')
-openai_api_key = os.getenv('OPENAI_API_KEY')
-base_url = os.getenv('OPENAI_API_BASE_URL')
+# Load secrets from .toml
+openai_model = st.secrets["openai_api_model"]
+openai_api_key = st.secrets["openai_api_key"]
+base_url = st.secrets["openai_api_base_url"]
 
 client = OpenAI(
     base_url= base_url,

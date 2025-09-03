@@ -7,7 +7,16 @@ import tiktoken as tkn
 import os
 import streamlit as st
 
-client = OpenAI()
+
+# Load secrets from .toml
+openai_model = st.secrets["openai_api_model"]
+openai_api_key = st.secrets["openai_api_key"]
+base_url = st.secrets["openai_api_base_url"]
+
+client = OpenAI(
+    base_url= base_url,
+    api_key=openai_api_key,
+)
 EMBEDDING_MODEL = "text-embedding-3-small"
 BATCH_SIZE = 20
 

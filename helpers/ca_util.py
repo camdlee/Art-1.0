@@ -8,9 +8,15 @@ import re
 from typing import Dict, List
 import os
 
+# Load secrets from .toml
+openai_model = st.secrets["openai_api_model"]
+openai_api_key = st.secrets["openai_api_key"]
+base_url = st.secrets["openai_api_base_url"]
 
-
-client = OpenAI()
+client = OpenAI(
+    base_url= base_url,
+    api_key=openai_api_key,
+)
 
 # calculate embeddings
 EMBEDDING_MODEL = "text-embedding-3-small"  # OpenAI's best embeddings as of Feb 2024
