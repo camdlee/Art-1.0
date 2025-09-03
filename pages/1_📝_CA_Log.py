@@ -47,7 +47,7 @@ if uploaded_submittals is not None:
         ]
     )
 
-    st.dataframe(styled_sub_df, use_container_width=True)
+    st.dataframe(styled_sub_df, width='stretch')
 
     excel_file = "submittal_log.xlsx"
     sub_df.to_excel(excel_file, index=False)
@@ -87,7 +87,7 @@ if uploaded_rfis is not None:
             {"selector": "td:nth-child(4)", "props": [("width", "150px")]},  # Due Date
         ]
     )
-    st.dataframe(styled_rfi_df, use_container_width=True)
+    st.dataframe(styled_rfi_df, width='stretch')
 
     # Convert DataFrame to Excel
     excel_file = 'submittal_log.xlsx'
