@@ -1,8 +1,7 @@
 import streamlit as st
 import pandas as pd
 import helpers.sidebar
-#import helpers.util
-from helpers.ca_util import extract_data_from_submittal, extract_data_from_rfi
+from helpers.ca_log_util import extract_data_from_submittal, extract_data_from_rfi
 
 st.set_page_config(
     page_title="CA Log",
