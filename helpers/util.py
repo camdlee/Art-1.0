@@ -1,6 +1,7 @@
 import os
 from typing import Dict
 import streamlit as st
+import openai
 from openai import OpenAI
 from streamlit.delta_generator import DeltaGenerator
 import services.llm
@@ -8,7 +9,7 @@ from typing import List, Tuple
 
 # Load secrets from .toml
 openai_model = st.secrets["openai_api_model"]
-openai_api_key = st.secrets["openai_api_key"]
+openai.api_key = st.secrets["openai_api_key"]
 base_url = st.secrets["openai_api_base_url"]
 
 client = OpenAI()
