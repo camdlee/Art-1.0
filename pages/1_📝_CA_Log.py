@@ -13,7 +13,7 @@ helpers.sidebar.show()
 
 ## ------- HEADER -------
 st.header("Construction Administration - Submittal & RFI Log")
-st.write("Automate your submittal and RFI logs by uploading your pdfs. The data will be formatted into a downloadable file.")
+st.write("***Automate your submittal and RFI logs by uploading your pdfs. The data will be formatted into a downloadable file.***")
 
 with st.expander("Instructions"):
     st.info(
