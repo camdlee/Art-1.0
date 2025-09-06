@@ -1,11 +1,9 @@
 from openai import OpenAI
-import numpy as np
-import pandas as pd
 import pdfplumber
 import streamlit as st
 from PyPDF2 import PdfReader
 import re
-from typing import Dict, List
+from typing import List
 import os
 
 # Load secrets from .toml
