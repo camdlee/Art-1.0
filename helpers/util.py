@@ -9,7 +9,7 @@ from typing import List, Tuple
 
 # Load secrets from .toml
 openai_model = st.secrets["openai_api_model"]
-openai.api_key = st.secrets["openai_api_key"]
+os.environ["OPENAI_API_KEY"] = st.secrets["openai_api_key"]
 base_url = st.secrets["openai_api_base_url"]
 
 client = OpenAI()
