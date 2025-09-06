@@ -1,5 +1,4 @@
 import pdfplumber
-import streamlit as st
 from PyPDF2 import PdfReader
 import re
 
@@ -37,7 +36,7 @@ def extract_data_from_submittal(submittal_file) -> dict:
     """
 
     extracted_data = {}
-    with pdfplumber.open(submittal_file) as pdf:
+    with pdfplumber.open(submittal_file):
         reader = PdfReader(submittal_file)
 
         for page in reader.pages:
@@ -125,7 +124,7 @@ def extract_data_from_submittal(submittal_file) -> dict:
                 print(f"File Name: {file_name} \nResponse: {response}")
                 extracted_data["Response"] = response
             except Exception as e:
-                print(f"Error extracting submittal response")
+                print(f"Error extracting submittal response: " + str(e))
 
             # COMMENTS
             # try:
@@ -153,7 +152,7 @@ def extract_data_from_rfi(rfi_file) -> dict:
         "Due Date": None,
     }
 
-    with pdfplumber.open(rfi_file) as pdf:
+    with pdfplumber.open(rfi_file):
         reader = PdfReader(rfi_file)
         # loop through each page to find the patterns for each field
         for page in reader.pages:
