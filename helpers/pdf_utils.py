@@ -146,7 +146,7 @@ def display_pdf_page(first_relevant_page_num, most_relevant_context_index, pdf_c
         if most_relevant_context_index is not None:
             images = convert_saved_pdf_page_to_img(uploaded_pdf_path, [most_relevant_context_index])
             if images:
-                st.image(images[0], caption=f"Page {most_relevant_context_index}")
+                st.image(images, caption=f"Page {most_relevant_context_index}")
 
         if most_relevant_context_index != -1:
             most_relevant_info = pdf_chunks[most_relevant_context_index]
