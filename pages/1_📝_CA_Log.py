@@ -9,12 +9,29 @@ st.set_page_config(
     layout="wide",
 )
 
-
 helpers.sidebar.show()
 
 ## ------- HEADER -------
 st.header("Construction Administration - Submittal & RFI Log")
 st.write("Automate your submittal and RFI logs by uploading your pdfs. The data will be formatted into a downloadable file.")
+
+with st.expander("Instructions"):
+    st.info(
+        """
+        1. Upload one or more **Submittal PDFs** in the first uploader by dragging and dropping or clicking **Browse files**.  
+           - The system will automatically extract the key information and display it in a table.
+           - If you click the column title, you will be able to sort the entries alphabetically or numerically based on the content in that column.
+           - You can either copy and paste from the table or click **Download Submittal Excel** to export the formatted log to an excel file.
+    
+        2. Upload one or more **RFI PDFs** in the second uploader by dragging and dropping or clicking **Browse files**.    
+           - The data will be extracted and displayed in a table.  
+           - If you click the column title, you will be able to sort the entries alphabetically or numerically based on the content in that column.
+           - Click **Download Excel File** to export the RFI log.  
+    
+        ⚠️ Make sure the PDFs follow Procore’s standard format so the tool can correctly parse the data.\n
+        Clicking the Reload Page button on the sidebar will clear all the uploaded PDFs. 
+        """
+    )
 
 ## ------- SUBMITTAL FILE UPLOAD --------
 uploaded_submittals = st.file_uploader("Upload your completed submittals", type=['pdf'], accept_multiple_files=True)
