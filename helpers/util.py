@@ -1,30 +1,17 @@
-import io
 import os
 from typing import Dict
-import re
 import streamlit as st
-from dotenv import load_dotenv
 from openai import OpenAI
-import pandas
 from streamlit.delta_generator import DeltaGenerator
-import numpy as np
-from PyPDF2 import PdfReader
-import pandas as pd
 import services.llm
-import tiktoken as tkn
 from typing import List, Tuple
-from sklearn.neighbors import NearestNeighbors
-from pdf2image import convert_from_path
 
 # Load secrets from .toml
 openai_model = st.secrets["openai_api_model"]
 openai_api_key = st.secrets["openai_api_key"]
 base_url = st.secrets["openai_api_base_url"]
 
-client = OpenAI(
-    base_url= base_url,
-    api_key=openai_api_key,
-)
+client = OpenAI()
 
 # calculate embeddings
 EMBEDDING_MODEL = "text-embedding-3-small"  # OpenAI's best embeddings as of Feb 2024
